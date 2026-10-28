@@ -1,0 +1,8 @@
+{
+  "serial_port": "/dev/ttyUSB0",
+  "baud_rate": 9600,
+  "backend_url": "http://localhost:5000",
+  "device_id": "pie-node-01",
+  "poll_interval_seconds": 5,
+  "moving_average_window": 5
+}
