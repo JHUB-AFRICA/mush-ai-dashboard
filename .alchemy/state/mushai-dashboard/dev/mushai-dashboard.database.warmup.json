@@ -1,0 +1,20 @@
+{
+  "status": "created",
+  "fqn": "mushai-dashboard.database.warmup",
+  "logicalId": "mushai-dashboard.database.warmup",
+  "instanceId": "33fc278c0d940e4cb5013f540e567329",
+  "resourceType": "PrismaCloud.PgWarm",
+  "props": {
+    "url": "postgres://postgres:postgres@localhost:51300/template1?sslmode=disable"
+  },
+  "attr": {
+    "url": "postgres://postgres:postgres@localhost:51300/template1?sslmode=disable"
+  },
+  "bindings": [],
+  "providerVersion": 0,
+  "downstream": [
+    "mushai-dashboard.api.env.COMPOSER_MUSHAI_DASHBOARD_API_DB_URL",
+    "mushai-dashboard.api.deployment"
+  ],
+  "removalPolicy": "destroy"
+}

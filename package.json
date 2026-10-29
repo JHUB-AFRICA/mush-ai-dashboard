@@ -1,19 +1,20 @@
 {
   "name": "mushai-dashboard",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "npm run build:backend && npm run build:frontend",
     "build:backend": "cd backend && bun build src/server.ts --target=bun --outfile dist/server.mjs",
     "build:frontend": "cd frontend && npm run build && bun build server.ts --target=bun --outfile dist/server.js",
-    "dev": "npm run build && npx prisma dev module.ts",
-    "deploy:preview": "npm run build && npx prisma deploy module.ts --stage preview --json",
-    "deploy:prod": "npm run build && npx prisma deploy module.ts --json"
+    "dev": "npm run build && npx prisma dev ",
+    "deploy:preview": "npm run build && npx prisma deploy  --stage preview --json",
+    "deploy:prod": "npm run build && npx prisma deploy  --json"
   },
   "devDependencies": {
-    "prisma": "^8.0.0-rc.23"
+    "prisma": "^8.0.0-rc.28"
   },
   "dependencies": {
-    "@prisma/composer": "^0.30.0",
-    "@prisma/composer-prisma-cloud": "^0.30.0"
+    "@prisma/composer": "^0.35.0",
+    "@prisma/composer-prisma-cloud": "^0.35.0"
   }
 }

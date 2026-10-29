@@ -1,0 +1,2 @@
+timestamp=2026-10-29T09:49:47.462Z level=DEBUG fiber=#73 message="state store: initializing"
+timestamp=2026-10-29T09:49:47.464Z level=DEBUG fiber=#73 message="state store: ready (local)"

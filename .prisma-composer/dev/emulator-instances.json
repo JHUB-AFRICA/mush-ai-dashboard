@@ -1,0 +1,25 @@
+{
+  "formatVersion": 2,
+  "current": "mushai-dashboard",
+  "apps": {
+    "mushai-dashboard": {
+      "nodes": {
+        "mushai-dashboard.database": {
+          "kind": "database",
+          "id": "db_b4742e452b17c607",
+          "port": 51300
+        },
+        "mushai-dashboard.api": {
+          "kind": "service",
+          "id": "svc_4e886c96d49e325d",
+          "port": 3000
+        },
+        "mushai-dashboard.web": {
+          "kind": "service",
+          "id": "svc_ed6c2b8ea5f78913",
+          "port": 3001
+        }
+      }
+    }
+  }
+}

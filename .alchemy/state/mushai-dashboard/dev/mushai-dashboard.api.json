@@ -1,0 +1,30 @@
+{
+  "status": "created",
+  "fqn": "mushai-dashboard.api",
+  "logicalId": "mushai-dashboard.api",
+  "instanceId": "3d10e27bafd4c695d5d987703c09cf1f",
+  "resourceType": "Prisma.App",
+  "props": {
+    "project": "local",
+    "displayName": "mushai-dashboard.api",
+    "regionId": "eu-central-1"
+  },
+  "attr": {
+    "appId": "mushai-dashboard.api",
+    "name": "mushai-dashboard.api",
+    "projectId": "local",
+    "regionId": "eu-central-1",
+    "branchId": null,
+    "latestDeploymentId": null,
+    "appEndpointDomain": "http://localhost:3000",
+    "createdAt": "1970-01-01T00:00:00.000Z",
+    "logicalId": null
+  },
+  "bindings": [],
+  "providerVersion": 0,
+  "downstream": [
+    "mushai-dashboard.api.env.COMPOSER_MUSHAI_DASHBOARD_API_ORIGIN",
+    "mushai-dashboard.api.deployment"
+  ],
+  "removalPolicy": "destroy"
+}

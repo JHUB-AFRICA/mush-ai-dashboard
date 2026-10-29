@@ -1,19 +1,44 @@
 /**
- * Mush-AI Backend — Express replaced with native Bun.serve.
- * DATABASE_URL is injected at runtime by Prisma Compute via service.load().
+ * Mush-AI Backend: native Bun.serve + Bun's built-in Postgres client.
+ * The database URL comes from Composer (service.load()), never process.env.
+ * The table is created automatically on first use.
  */
+import { SQL } from "bun";
 import service from "./service.ts";
-import { PrismaClient } from "@prisma/client";
 
-// Read the Postgres URL from the Compute runtime (never from process.env directly)
 const { db } = service.load();
-const prisma = new PrismaClient({ datasources: { db: { url: db.url } } });
+const sql = new SQL({ url: db.url, max: 1, idleTimeout: 10, prepare: false });
+
+let ready: Promise<void> | null = null;
+function ensureTable(): Promise<void> {
+  ready ??= (async () => {
+    await sql.unsafe(`
+      CREATE TABLE IF NOT EXISTS "SensorLog" (
+        "id"          TEXT PRIMARY KEY,
+        "deviceId"    TEXT NOT NULL DEFAULT 'pie-node-01',
+        "co2"         DOUBLE PRECISION NOT NULL,
+        "temperature" DOUBLE PRECISION NOT NULL,
+        "humidity"    DOUBLE PRECISION NOT NULL,
+        "moisture"    DOUBLE PRECISION NOT NULL,
+        "light"       DOUBLE PRECISION NOT NULL,
+        "timestamp"   TIMESTAMPTZ NOT NULL DEFAULT now()
+      )`);
+    await sql.unsafe(`CREATE INDEX IF NOT EXISTS "SensorLog_timestamp_idx" ON "SensorLog" ("timestamp")`);
+  })().catch((e) => {
+    ready = null; // try again on the next request
+    throw e;
+  });
+  return ready;
+}
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
+const reply = (data: unknown, status = 200) =>
+  Response.json(data, { status, headers: CORS_HEADERS });
+const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
 Bun.serve({
   port: service.port(),
@@ -22,66 +47,36 @@ Bun.serve({
   async fetch(req) {
     const url = new URL(req.url);
 
-    // Preflight
-    if (req.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: CORS_HEADERS });
-    }
+    if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS_HEADERS });
+    if (url.pathname === "/health") return reply({ ok: true });
 
-    // POST /api/telemetry  — Raspberry Pi sends readings here
-    if (req.method === "POST" && url.pathname === "/api/telemetry") {
-      try {
-        const body = (await req.json()) as {
-          deviceId?: string;
-          co2: number;
-          temperature: number;
-          humidity: number;
-          moisture: number;
-          light: number;
-        };
-
-        const newLog = await prisma.sensorLog.create({
-          data: {
-            deviceId: body.deviceId ?? "pie-node-01",
-            co2: body.co2,
-            temperature: body.temperature,
-            humidity: body.humidity,
-            moisture: body.moisture,
-            light: body.light,
-          },
-        });
-
-        return Response.json(
-          { success: true, data: newLog },
-          { status: 201, headers: CORS_HEADERS }
-        );
-      } catch (error) {
-        console.error("Error saving telemetry:", error);
-        return Response.json(
-          { success: false, error: String(error) },
-          { status: 500, headers: CORS_HEADERS }
-        );
+    try {
+      // The Pi sends sensor readings here
+      if (req.method === "POST" && url.pathname === "/api/telemetry") {
+        const b: any = await req.json();
+        if (![b.co2, b.temperature, b.humidity, b.moisture, b.light].every(isNum)) {
+          return reply({ success: false, error: "co2, temperature, humidity, moisture and light must be numbers" }, 400);
+        }
+        await ensureTable();
+        const rows = await sql`
+          INSERT INTO "SensorLog" ("id","deviceId","co2","temperature","humidity","moisture","light")
+          VALUES (${crypto.randomUUID()}, ${b.deviceId ?? "pie-node-01"}, ${b.co2}, ${b.temperature}, ${b.humidity}, ${b.moisture}, ${b.light})
+          RETURNING *`;
+        return reply({ success: true, data: rows[0] }, 201);
       }
-    }
 
-    // GET /api/status  — Frontend polls for the latest reading
-    if (req.method === "GET" && url.pathname === "/api/status") {
-      try {
-        const telemetry = await prisma.sensorLog.findFirst({
-          orderBy: { timestamp: "desc" },
-        });
-        return Response.json(
-          { success: true, telemetry },
-          { headers: CORS_HEADERS }
-        );
-      } catch (error) {
-        return Response.json(
-          { success: false, error: String(error) },
-          { status: 500, headers: CORS_HEADERS }
-        );
+      // The website reads the latest reading from here
+      if (req.method === "GET" && url.pathname === "/api/status") {
+        await ensureTable();
+        const rows = await sql`SELECT * FROM "SensorLog" ORDER BY "timestamp" DESC LIMIT 1`;
+        return reply({ success: true, telemetry: rows[0] ?? null });
       }
-    }
 
-    return new Response("Not Found", { status: 404, headers: CORS_HEADERS });
+      return new Response("Not Found", { status: 404, headers: CORS_HEADERS });
+    } catch (error) {
+      console.error(error);
+      return reply({ success: false, error: String(error) }, 500);
+    }
   },
 });
 

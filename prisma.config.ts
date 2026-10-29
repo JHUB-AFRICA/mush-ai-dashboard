@@ -5,6 +5,7 @@ import { definePrismaConfig } from "prisma/config";
 
 export default definePrismaConfig({
   composer: composer({
+	  entry:"./module.ts",
     extensions: [
       // eu-central-1 is the closest region; cannot be changed after first deploy
       prismaCloud({ region: "eu-central-1" }),

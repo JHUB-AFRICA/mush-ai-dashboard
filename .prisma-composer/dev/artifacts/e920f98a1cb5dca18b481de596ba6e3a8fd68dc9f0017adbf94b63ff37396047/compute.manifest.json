@@ -1,0 +1,5 @@
+{
+  "manifestVersion": "1",
+  "entrypoint": "bootstrap.js",
+  "address": "mushai-dashboard.api"
+}

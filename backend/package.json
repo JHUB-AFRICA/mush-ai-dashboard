@@ -1,15 +1,10 @@
 {
   "name": "mush-ai-backend",
+  "type": "module",
   "version": "1.0.0",
   "scripts": {
     "build": "bun build src/server.ts --target=bun --outfile dist/server.mjs",
     "start": "bun run dist/server.mjs",
     "dev:local": "bun run src/server.ts"
-  },
-  "dependencies": {
-    "@prisma/client": "^5.10.0"
-  },
-  "devDependencies": {
-    "prisma": "^5.10.0"
   }
 }

@@ -1,0 +1,5 @@
+{
+  "moduleEntrypoint": "./main.mjs",
+  "appEntrypoint": "./bundle/server.mjs",
+  "address": "mushai-dashboard.api"
+}

@@ -1,0 +1,33 @@
+{
+  "status": "created",
+  "fqn": "mushai-dashboard.database",
+  "logicalId": "mushai-dashboard.database",
+  "instanceId": "677e2590d00acb600cb7349284b14557",
+  "resourceType": "Prisma.Database",
+  "props": {
+    "project": "local",
+    "region": "eu-central-1",
+    "name": "mushai-dashboard.database"
+  },
+  "attr": {
+    "databaseId": "db_b4742e452b17c607",
+    "databaseName": "mushai-dashboard.database",
+    "projectId": "local",
+    "status": "ready",
+    "region": "eu-central-1",
+    "isDefault": false,
+    "branchId": null,
+    "defaultConnectionId": null,
+    "createdAt": "1970-01-01T00:00:00.000Z",
+    "logicalId": null,
+    "directConnectionString": {
+      "__redacted__": "postgres://postgres:postgres@localhost:51300/template1?sslmode=disable"
+    }
+  },
+  "bindings": [],
+  "providerVersion": 0,
+  "downstream": [
+    "mushai-dashboard.database.connection"
+  ],
+  "removalPolicy": "destroy"
+}

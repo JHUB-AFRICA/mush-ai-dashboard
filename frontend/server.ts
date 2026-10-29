@@ -6,7 +6,7 @@ import service from "./src/service.ts";
 import { statSync, readFileSync } from "node:fs";
 import { join, extname } from "node:path";
 
-const DIST = new URL("./dist", import.meta.url).pathname;
+const DIST = new URL(".", import.meta.url).pathname;
 
 const MIME: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
