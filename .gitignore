@@ -21,6 +21,7 @@ env/
 
 # Prisma Compute local state (generated after project link)
 .prisma/local.json
+.prisma-composer/
 
 # Agent skills directories
 .claude/
