@@ -1,12 +1,11 @@
 # 🥧 Mush-AI PIE Edge Node
 
-This folder contains the Python edge client running on the Raspberry Pi. It reads sensor telemetry from an Arduino via USB serial, applies a Moving Average smoothing filter, syncs data to the cloud backend via HTTP POST, and polls for valve/actuator states to control local hardware pins.
+This folder contains the Python edge client running on the Raspberry Pi. It reads sensor telemetry from an Arduino via USB serial, applies a Moving Average smoothing filter, syncs data to the cloud backend via HTTP POST.
 
 ---
 
 ## 🛠️ Hardware Wiring & Pinout
 * **Arduino Connection:** Plugged into the Raspberry Pi via a USB cable.
-* **Actuator LED / Relay:** Connected to **Digital Pin 5 (BCM)** and Ground (`GND`).
 
 ---
 

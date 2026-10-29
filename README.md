@@ -8,9 +8,9 @@ Welcome to the Mush-AI project! This repository houses the complete ecosystem co
 
 - **`/backend`** — Node.js Express server, Prisma schema, and database models.
 
-- **`/frontend`** — Vite + React dashboard interface for real-time charts and valve toggles.
+- **`/frontend`** — Vite + React dashboard interface for real-time charts.
 
-- **`/pie`** — Python edge node software (USB serial reading from Arduino, moving average filtering, and Pin 5 actuator control).
+- **`/pie`** — Python edge node software (USB serial reading from Arduino).
 
 ---
 

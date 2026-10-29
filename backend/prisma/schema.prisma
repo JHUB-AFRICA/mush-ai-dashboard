@@ -16,11 +16,6 @@ model SensorLog {
   moisture    Float
   light       Float
   timestamp   DateTime @default(now())
-}
 
-model ActuatorState {
-  id          String   @id @default(uuid())
-  deviceId    String   @unique @default("pie-node-01")
-  valveState  Boolean  @default(false)
-  updatedAt   DateTime @updatedAt
+  @@index([timestamp])
 }
