@@ -1,0 +1,32 @@
+name: prisma-deploy
+
+on:
+  push:
+
+concurrency:
+  group: prisma-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write   # required for OIDC token exchange with Prisma Cloud
+
+jobs:
+  deploy:
+    if: github.ref_type == 'branch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Bun is required to bundle the backend and frontend static server
+      - uses: oven-sh/setup-bun@v2
+
+      - uses: prisma/cloud-deploy-action@v1
+        with:
+          # Runs `npm run build` at the repo root, which builds both services
+          build-command: npm run build

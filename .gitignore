@@ -18,3 +18,13 @@ venv/
 env/
 .venv/
 .pio/
+
+# Prisma Compute local state (generated after project link)
+.prisma/local.json
+
+# Agent skills directories
+.claude/
+.cursor/
+.devin/
+.agents/
+skills-lock.json
