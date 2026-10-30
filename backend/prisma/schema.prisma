@@ -18,4 +18,28 @@ model SensorLog {
   timestamp   DateTime @default(now())
 
   @@index([timestamp])
+  @@index([deviceId, timestamp])
+}
+
+model Batch {
+  id                   String        @id @default(uuid())
+  code                 String        @unique
+  strain               String
+  substrateComposition String?
+  substrateDryWeightKg Float         @default(12.0)
+  substrateMoisturePct Float         @default(62.0)
+  inoculationDate      DateTime      @default(now())
+  currentStage         String        @default("Pinning")
+  status               String        @default("active")
+  yields               YieldRecord[]
+  createdAt            DateTime      @default(now())
+}
+
+model YieldRecord {
+  id            String   @id @default(uuid())
+  batchId       String
+  batch         Batch    @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  flushNumber   Int
+  harvestDate   DateTime @default(now())
+  freshWeightKg Float
 }

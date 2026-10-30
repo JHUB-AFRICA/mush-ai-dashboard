@@ -1,65 +1,179 @@
 import React, { useState, useEffect } from 'react';
-import MetricCard from './components/MetricCard';
-import TelemetryCharts from './components/TelemetryCharts';
+import './theme.css';
+import HeroBanner from './components/HeroBanner';
+import SystemHealthStrip from './components/SystemHealthStrip';
+import GrowCycleStepper from './components/GrowCycleStepper';
+import HistoricalTrend from './components/HistoricalTrend';
+import LiveMonitoringView from './components/LiveMonitoringView';
+import BatchesView from './components/BatchesView';
+import GraphsView from './components/GraphsView';
+import SettingsView from './components/SettingsView';
 
-const API_URL = 'https://ce9wvhakoaezqngxez6qx1b3.fra.prisma.build';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://ce9wvhakoaezqngxez6qx1b3.fra.prisma.build';
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState('overview');
   const [status, setStatus] = useState(null);
+  const [lastSyncTime, setLastSyncTime] = useState(null);
   const [history, setHistory] = useState([]);
+  const [batches, setBatches] = useState([]);
+  const [selectedRange, setSelectedRange] = useState(24);
   const [loading, setLoading] = useState(true);
 
+  // 1. Fetch latest real-time status
   const fetchStatus = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/status`);
+      const res = await fetch(`${API_BASE}/api/status`);
       const data = await res.json();
       if (data.success && data.telemetry) {
-        setStatus(data);
-        
-        const timestamp = new Date().toLocaleTimeString();
-        setHistory(prev => {
-          const newEntry = { time: timestamp, ...data.telemetry };
-          const updated = [...prev, newEntry];
-          if (updated.length > 20) updated.shift();
-          return updated;
-        });
+        setStatus(data.telemetry);
+        setLastSyncTime(new Date());
       }
     } catch (err) {
-      console.error('Failed to fetch status:', err);
+      console.warn('Could not connect to live backend status:', err);
     } finally {
       setLoading(false);
     }
   };
 
+  // 2. Fetch historical sensor readings
+  const fetchHistory = async (hours = selectedRange) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/telemetry/history?hours=${hours}&limit=300`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.history)) {
+        setHistory(data.history);
+      }
+    } catch (err) {
+      console.warn('Could not fetch historical telemetry:', err);
+    }
+  };
+
+  // 3. Fetch batches
+  const fetchBatches = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/batches`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.batches)) {
+        setBatches(data.batches);
+      }
+    } catch (err) {
+      console.warn('Could not fetch batches:', err);
+    }
+  };
+
+  // Handlers for logging yields and batches
+  const handleLogYield = async (payload) => {
+    const res = await fetch(`${API_BASE}/api/yields`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (data.success) {
+      fetchBatches();
+    }
+  };
+
+  const handleCreateBatch = async (payload) => {
+    const res = await fetch(`${API_BASE}/api/batches`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (data.success) {
+      fetchBatches();
+    }
+  };
+
+  const handleSelectRange = (hours) => {
+    setSelectedRange(hours);
+    fetchHistory(hours);
+  };
+
   useEffect(() => {
     fetchStatus();
-    const interval = setInterval(fetchStatus, 5000);
+    fetchHistory(24);
+    fetchBatches();
+
+    // 5-second polling interval for live hardware telemetry
+    const interval = setInterval(() => {
+      fetchStatus();
+      fetchHistory(selectedRange);
+    }, 5000);
+
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedRange]);
 
-  if (loading) return <div style={{ padding: 40, fontFamily: 'sans-serif' }}>Loading Mush-AI Dashboard...</div>;
-
-  const t = status?.telemetry || {};
+  const activeBatch = batches.length > 0 ? batches[0] : null;
 
   return (
-    <div style={{ fontFamily: 'sans-serif', maxWidth: 960, margin: '40px auto', padding: '0 20px', color: '#333' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #eaeaea', paddingBottom: '15px', marginBottom: '25px' }}>
-        <h2 style={{ margin: 0, color: '#2c3e50' }}>🍄 Mush-AI Farm Dashboard</h2>
-        <span style={{ fontSize: '14px', background: '#e1f5fe', color: '#01579b', padding: '6px 12px', borderRadius: '20px', fontWeight: '600' }}>
-          Device: {t.deviceId || 'Offline'}
-        </span>
+    <div className="dashboard-container">
+      {/* Top Navigation */}
+      <header className="navbar">
+        <div className="nav-brand">
+          <span className="brand-icon">🍄</span>
+          <div>
+            <div className="brand-title">Smart Mushroom Farm</div>
+            <div className="brand-subtitle">JHUB Africa · JKUAT Smart Farm Zone</div>
+          </div>
+        </div>
+
+        <nav className="nav-tabs">
+          {[
+            { id: 'overview', label: 'Overview' },
+            { id: 'monitoring', label: 'Live Monitoring' },
+            { id: 'batches', label: 'Batches' },
+            { id: 'graphs', label: 'Graphs & Export' },
+            { id: 'settings', label: 'Settings' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              className={`nav-tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
       </header>
 
-      {/* Modular Metric Cards Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '20px', marginBottom: '35px' }}>
-        <MetricCard title="CO2 Level" value={t.co2} unit="ppm" color="#27ae60" />
-        <MetricCard title="Temperature" value={t.temperature} unit="°C" color="#e74c3c" />
-        <MetricCard title="Humidity" value={t.humidity} unit="%" color="#3498db" />
-        <MetricCard title="Soil Moisture" value={t.moisture} unit="%" color="#9b59b6" />
-      </div>
+      {/* Main Views */}
+      <main>
+        {activeTab === 'overview' && (
+          <>
+            <HeroBanner telemetry={status} farmerName="Caroline" />
+            <SystemHealthStrip telemetry={status} lastSyncTime={lastSyncTime} />
+            <GrowCycleStepper activeBatch={activeBatch} />
+            <HistoricalTrend history={history} telemetry={status} />
+          </>
+        )}
 
-      {/* Modular Charts Component */}
-      <TelemetryCharts history={history} />
+        {activeTab === 'monitoring' && (
+          <LiveMonitoringView telemetry={status} />
+        )}
+
+        {activeTab === 'batches' && (
+          <BatchesView
+            batches={batches}
+            onLogYield={handleLogYield}
+            onCreateBatch={handleCreateBatch}
+          />
+        )}
+
+        {activeTab === 'graphs' && (
+          <GraphsView
+            history={history}
+            selectedRange={selectedRange}
+            onSelectRange={handleSelectRange}
+          />
+        )}
+
+        {activeTab === 'settings' && (
+          <SettingsView />
+        )}
+      </main>
     </div>
   );
 }
