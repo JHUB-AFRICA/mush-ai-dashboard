@@ -9,7 +9,11 @@ import BatchesView from './components/BatchesView';
 import GraphsView from './components/GraphsView';
 import SettingsView from './components/SettingsView';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://ce9wvhakoaezqngxez6qx1b3.fra.prisma.build';
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined' && window.location.hostname.includes('lc67zsdjj73f8ymtqm262jcu')
+    ? 'https://c2lhv7jkubgungvqveah8tgl.fra.prisma.build'
+    : 'https://ce9wvhakoaezqngxez6qx1b3.fra.prisma.build');
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview');

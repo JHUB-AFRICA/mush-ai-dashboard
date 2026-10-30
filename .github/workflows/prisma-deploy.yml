@@ -2,31 +2,62 @@ name: prisma-deploy
 
 on:
   push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - dev
+      - main
+      - prod
 
 concurrency:
-  group: prisma-deploy-${{ github.ref }}
+  group: prisma-deploy-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
   contents: read
   id-token: write   # required for OIDC token exchange with Prisma Cloud
+  pull-requests: write # allows posting deployment URLs to PRs
 
 jobs:
   deploy:
-    if: github.ref_type == 'branch'
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
 
-      # Bun is required to bundle the backend and frontend static server
-      - uses: oven-sh/setup-bun@v2
+      - name: Setup Bun runtime
+        uses: oven-sh/setup-bun@v2
 
-      - uses: prisma/cloud-deploy-action@v1
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd backend && npm ci && cd ..
+          cd frontend && npm ci && cd ..
+
+      - name: Deploy to Prisma Compute
+        id: deploy
+        uses: prisma/cloud-deploy-action@v1
         with:
-          # Runs `npm run build` at the repo root, which builds both services
+          module: module.ts
           build-command: npm run build
+        env:
+          # Supports both OIDC exchange and fallback workspace service token for team members
+          PRISMA_SERVICE_TOKEN: ${{ secrets.PRISMA_SERVICE_TOKEN }}
+          PRISMA_WORKSPACE_ID: 'vg7opzc5am1umpu5tfbmbysg'
+
+      - name: Log Deployment URLs to Step Summary
+        if: always()
+        run: |
+          echo "### 🍄 Mush-AI Prisma Compute Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ${{ steps.deploy.outputs.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Root Service URL:** ${{ steps.deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workspace:** jhuba-smartmushroom (\`vg7opzc5am1umpu5tfbmbysg\`)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Ref:** \`${{ github.ref }}\`" >> $GITHUB_STEP_SUMMARY
