@@ -93,11 +93,27 @@ Bun.serve({
         return reply({ success: true, data: rows[0] }, 201);
       }
 
-      // 2. Latest telemetry reading
+      // 2. Latest telemetry reading + real hardware heartbeat
       if (req.method === "GET" && url.pathname === "/api/status") {
         await ensureTable();
         const rows = await sql`SELECT * FROM "SensorLog" ORDER BY "timestamp" DESC LIMIT 1`;
-        return reply({ success: true, telemetry: rows[0] ?? null });
+        const latest: any = rows[0] ?? null;
+
+        const now = Date.now();
+        const ageSeconds = latest ? Math.floor((now - new Date(latest.timestamp).getTime()) / 1000) : null;
+        // The edge node pushes every 5s; consider it live if received within 30s
+        const isLive = ageSeconds !== null && ageSeconds < 30;
+
+        return reply({
+          success: true,
+          telemetry: latest,
+          health: {
+            isLive,
+            ageSeconds,
+            rpiStatus: isLive ? "connected" : "offline",
+            arduinoStatus: isLive ? "streaming" : "offline",
+          },
+        });
       }
 
       // 3. Historical telemetry for charts & CSV export

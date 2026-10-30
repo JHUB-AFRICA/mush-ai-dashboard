@@ -6,7 +6,7 @@
   "resourceType": "Prisma.Deployment",
   "props": {
     "app": "mushai-dashboard.web",
-    "artifactPath": "/tmp/prisma-composer-compute-1000/caac0ae20f12fed5/mushai-dashboard.web.tar.gz",
+    "artifactPath": "/tmp/prisma-composer-compute-1000/e0867f9e772e0965/mushai-dashboard.web.tar.gz",
     "artifactContentType": "application/gzip",
     "triggers": {
       "COMPOSER_MUSHAI_DASHBOARD_WEB_PORT": {
@@ -23,12 +23,12 @@
     "promote": true
   },
   "attr": {
-    "deploymentId": "caac0ae20f12fed5ddc1b009b63ec50f623bbad399501f318a69dad8ecc878c2",
+    "deploymentId": "e0867f9e772e09658f1f51b595103cd7681ba0edd49b553a1b32c65236ca95f1",
     "appId": "mushai-dashboard.web",
-    "foundryVersionId": "caac0ae20f12fed5ddc1b009b63ec50f623bbad399501f318a69dad8ecc878c2",
+    "foundryVersionId": "e0867f9e772e09658f1f51b595103cd7681ba0edd49b553a1b32c65236ca95f1",
     "status": "running",
     "previewDomain": null,
-    "artifactHash": "caac0ae20f12fed5ddc1b009b63ec50f623bbad399501f318a69dad8ecc878c2",
+    "artifactHash": "e0867f9e772e09658f1f51b595103cd7681ba0edd49b553a1b32c65236ca95f1",
     "appEndpointDomain": "http://localhost:3001",
     "createdAt": "1970-01-01T00:00:00.000Z"
   },

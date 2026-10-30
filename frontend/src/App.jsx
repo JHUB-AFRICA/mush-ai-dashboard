@@ -14,20 +14,20 @@ const API_BASE = import.meta.env.VITE_API_URL || 'https://ce9wvhakoaezqngxez6qx1
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview');
   const [status, setStatus] = useState(null);
-  const [lastSyncTime, setLastSyncTime] = useState(null);
+  const [health, setHealth] = useState(null);
   const [history, setHistory] = useState([]);
   const [batches, setBatches] = useState([]);
   const [selectedRange, setSelectedRange] = useState(24);
   const [loading, setLoading] = useState(true);
 
-  // 1. Fetch latest real-time status
+  // 1. Fetch latest real-time status + hardware heartbeat
   const fetchStatus = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/status`);
       const data = await res.json();
       if (data.success && data.telemetry) {
         setStatus(data.telemetry);
-        setLastSyncTime(new Date());
+        setHealth(data.health || null);
       }
     } catch (err) {
       console.warn('Could not connect to live backend status:', err);
@@ -143,15 +143,15 @@ export default function App() {
       <main>
         {activeTab === 'overview' && (
           <>
-            <HeroBanner telemetry={status} farmerName="Caroline" />
-            <SystemHealthStrip telemetry={status} lastSyncTime={lastSyncTime} />
+            <HeroBanner telemetry={status} health={health} farmerName="Caroline" />
+            <SystemHealthStrip telemetry={status} health={health} />
             <GrowCycleStepper activeBatch={activeBatch} />
             <HistoricalTrend history={history} telemetry={status} />
           </>
         )}
 
         {activeTab === 'monitoring' && (
-          <LiveMonitoringView telemetry={status} />
+          <LiveMonitoringView telemetry={status} health={health} />
         )}
 
         {activeTab === 'batches' && (

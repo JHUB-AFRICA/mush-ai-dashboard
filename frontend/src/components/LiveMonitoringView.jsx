@@ -1,16 +1,23 @@
 import React from 'react';
 
-export default function LiveMonitoringView({ telemetry }) {
+export default function LiveMonitoringView({ telemetry, health }) {
   const t = telemetry || {};
-  const isOnline = Boolean(t.timestamp);
+  const isLive = Boolean(health?.isLive);
+
+  const formatOfflineText = () => {
+    if (!health?.ageSeconds) return 'Offline';
+    if (health.ageSeconds < 60) return `Offline (${health.ageSeconds}s ago)`;
+    if (health.ageSeconds < 3600) return `Offline (${Math.floor(health.ageSeconds / 60)}m ago)`;
+    return `Offline (${Math.floor(health.ageSeconds / 3600)}h ago)`;
+  };
 
   const rooms = [
     {
       id: 1,
       name: 'Room 1 · Rack A (Active Chamber)',
       device: t.deviceId || 'pie-node-01',
-      status: isOnline ? 'ok' : 'offline',
-      statusText: isOnline ? 'Online · Streaming' : 'Offline',
+      status: isLive ? 'ok' : 'offline',
+      statusText: isLive ? 'Online · Streaming' : formatOfflineText(),
       metrics: {
         temp: t.temperature != null ? `${t.temperature}°C` : '—',
         humidity: t.humidity != null ? `${t.humidity}%` : '—',

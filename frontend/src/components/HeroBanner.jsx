@@ -14,8 +14,9 @@ function getChipStatus(varKey, val) {
   return val >= target.min && val <= target.max ? 'ok' : 'warn';
 }
 
-export default function HeroBanner({ telemetry, farmerName = 'Caroline' }) {
+export default function HeroBanner({ telemetry, health, farmerName = 'Caroline' }) {
   const t = telemetry || {};
+  const isLive = Boolean(health?.isLive);
   const today = new Date().toLocaleDateString('en-GB', {
     weekday: 'long',
     day: 'numeric',
@@ -30,16 +31,18 @@ export default function HeroBanner({ telemetry, farmerName = 'Caroline' }) {
     { key: 'light', val: t.light, label: 'Avg. Light', unit: 'lux', range: '200–500lux' },
   ];
 
-  const isOnline = t.timestamp != null;
+  const getSubText = () => {
+    if (isLive) return `${today} · 1 edge node actively streaming live`;
+    if (t.timestamp) return `${today} · Edge node standby (offline)`;
+    return `${today} · Waiting for first edge node telemetry`;
+  };
 
   return (
     <div className="hero">
       <div>
         <div className="hero-eyebrow">JHUB Africa · Smart Mushroom Farm</div>
         <div className="hero-greeting">Welcome back, {farmerName}</div>
-        <div className="hero-sub">
-          {today} · {isOnline ? '1 edge node streaming telemetry' : 'Waiting for edge connection'}
-        </div>
+        <div className="hero-sub">{getSubText()}</div>
       </div>
 
       <div className="chip-row">

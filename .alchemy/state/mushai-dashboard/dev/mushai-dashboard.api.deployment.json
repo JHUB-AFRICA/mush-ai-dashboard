@@ -1,12 +1,12 @@
 {
-  "status": "created",
+  "status": "updated",
   "fqn": "mushai-dashboard.api.deployment",
   "logicalId": "mushai-dashboard.api.deployment",
   "instanceId": "7b3ed43ced847b76a4f7a17e33ba344e",
   "resourceType": "Prisma.Deployment",
   "props": {
     "app": "mushai-dashboard.api",
-    "artifactPath": "/tmp/prisma-composer-compute-1000/e920f98a1cb5dca1/mushai-dashboard.api.tar.gz",
+    "artifactPath": "/tmp/prisma-composer-compute-1000/df854cfd1b147635/mushai-dashboard.api.tar.gz",
     "artifactContentType": "application/gzip",
     "triggers": {
       "COMPOSER_MUSHAI_DASHBOARD_API_DB_URL": {
@@ -26,12 +26,12 @@
     "promote": true
   },
   "attr": {
-    "deploymentId": "e920f98a1cb5dca18b481de596ba6e3a8fd68dc9f0017adbf94b63ff37396047",
+    "deploymentId": "df854cfd1b147635d87bac5ef8f0d8b1450031424de4cc7f163de81493135dfd",
     "appId": "mushai-dashboard.api",
-    "foundryVersionId": "e920f98a1cb5dca18b481de596ba6e3a8fd68dc9f0017adbf94b63ff37396047",
+    "foundryVersionId": "df854cfd1b147635d87bac5ef8f0d8b1450031424de4cc7f163de81493135dfd",
     "status": "running",
     "previewDomain": null,
-    "artifactHash": "e920f98a1cb5dca18b481de596ba6e3a8fd68dc9f0017adbf94b63ff37396047",
+    "artifactHash": "df854cfd1b147635d87bac5ef8f0d8b1450031424de4cc7f163de81493135dfd",
     "appEndpointDomain": "http://localhost:3000",
     "createdAt": "1970-01-01T00:00:00.000Z"
   },
